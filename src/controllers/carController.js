@@ -1,4 +1,5 @@
 const Car = require("../models/car");
+const Rental = require("../models/rental");
 
 const createCar = async (req, res) => {
 	const { make, model, year, availability } = req.body;
@@ -69,22 +70,21 @@ const deleteCar = async (req, res) => {
 	}
 };
 
+const searchCars = async (req, res) => {
+	const { make, model, year, available } = req.query;
+	const filters = {};
+	if (make) filters.make = make;
+	if (model) filters.model = model;
+	if (year) filters.year = parseInt(year);
+	if (available !== undefined) filters.availability = available === "true";
 
-const rentCar = async (req, res) => {
 	try {
-		const car = await Car.findByPk(req.params.id);
-		if (!car) return res.status(404).json({ error: "Car not found" });
-		if (!car.availability)
-			return res.status(400).json({ error: "Car is already rented" });
-
-		car.availability = false;
-		await car.save();
-		res.status(200).json({ message: "Car rented successfully", car });
+		const cars = await Car.findAll({ where: filters });
+		res.status(200).json(cars);
 	} catch (error) {
-		res.status(500).json({ error: "Error renting car", details: error });
+		res.status(500).json({ error: "Error searching cars", details: error });
 	}
 };
-
 
 module.exports = {
 	createCar,
@@ -92,5 +92,5 @@ module.exports = {
 	getCarById,
 	updateCar,
 	deleteCar,
-	rentCar,
+	searchCars,
 };
