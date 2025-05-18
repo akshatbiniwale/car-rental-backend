@@ -1,5 +1,7 @@
 const Rental = require("../models/rental");
 const Car = require("../models/car");
+const { Op } = require("sequelize");
+
 
 const rentCar = async (req, res) => {
 	const { startDate, endDate } = req.body;
@@ -110,10 +112,38 @@ const getAllRentedCars = async (req, res) => {
 	}
 };
 
+const getRentalHistory = async (req, res) => {
+	const { userId, carId, startDate, endDate } = req.query;
+
+	const filters = {};
+	if (userId) filters.userId = userId;
+	if (carId) filters.carId = carId;
+
+	if (startDate && endDate) {
+		filters.startDate = { [Op.gte]: new Date(startDate) };
+		filters.endDate = { [Op.lte]: new Date(endDate) };
+	}
+
+	try {
+		const rentals = await Rental.findAll({
+			where: filters,
+			order: [["startDate", "DESC"]],
+		});
+		res.status(200).json(rentals);
+	} catch (error) {
+		res.status(500).json({
+			error: "Error fetching rental history",
+			details: error,
+		});
+	}
+};
+
+
 module.exports = {
 	rentCar,
 	returnCar,
 	userRentals,
 	rentalDetails,
 	getAllRentedCars,
+	getRentalHistory,
 };
