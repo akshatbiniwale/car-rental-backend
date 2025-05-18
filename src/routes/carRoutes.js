@@ -14,8 +14,8 @@ const router = express.Router();
 router.post("/", verifyToken, isAdmin, createCar);
 
 router.get("/", getCars);
-router.get("/:id", getCarById);
 router.get("/search", searchCars);
+router.get("/:id", getCarById);
 
 router.put("/:id", verifyToken, isAdmin, updateCar);
 
