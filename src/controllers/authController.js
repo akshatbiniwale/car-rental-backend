@@ -9,9 +9,11 @@ const register = async (req, res) => {
 		const hashedPassword = await bcrypt.hash(password, 10);
 		const user = await User.create({
 			username,
+			password: hashedPassword,
 			role,
 		});
-		res.status(201).json({ message: "User registered successfully", user });
+		const userResponse = { id: user.id, username: user.username, role: user.role };
+		res.status(201).json({ message: "User registered successfully", user: userResponse });
 	} catch (error) {
 		res.status(500).json({ message: "Error registering user", error });
 	}
