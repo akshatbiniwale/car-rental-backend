@@ -9,6 +9,11 @@ const rentCar = async (req, res) => {
 	const userId = req.user.id;
 
 	try {
+		const car = await Car.findByPk(carId);
+		if (!car) {
+			return res.status(404).json({ message: "Car not found" });
+		}
+
 		const overlapping = await Rental.findOne({
 			where: {
 				carId,
